@@ -16,24 +16,58 @@ $(function() {
   });
 });
 
+const A = 0x41;
+const Z = 0x5a;
+const a = 0x61;
+const z = 0x7a;
+
 window.Ciphers = {};
 
+// Change "az" into "1 26"
+//
+//     new NumberSubstituion();
+//
+// Change "az" into "2 1"
+//
+//     new NumberSubstitution({offset: 1});
 Ciphers.NumberSubstitution = function(config) {
-  console.log(config);
   var offset = config.offset || 0;
   var lookup = { " ": "   " };
   for (var i = 0; i < 26; i++) {
-    var letter = String.fromCharCode(97 + i);
+    var letter = String.fromCharCode(a + i);
     var n = ((i + offset) % 26) + 1;
     lookup[letter] = ("   " + n).slice(-3);
   }
   this.encrypt = function(plain) {
-    var result = "";
-    for(var i = 0; i < plain.length; i++) {
-      var c = plain[i].toLowerCase();
-      var ec = lookup[c];
-      result = result + (ec || c);
-    }
-    return result;
+    return substitute(plain, lookup);
+  };
+  return this;
+}
+
+// Change "az" into "BA"
+//
+//     new Caesar({a: "b"});
+Ciphers.Caesar = function(config) {
+  var offset = (config.a || "a").toUpperCase().charCodeAt(0) - A;
+  var lookup = {};
+  for (var i = 0; i < 26; i++) {
+    var from = String.fromCharCode(a + i);
+    var to = String.fromCharCode(A + (offset + i) % 26);
+    lookup[from] = to;
   }
+  this.encrypt = function(plain) {
+    return substitute(plain, lookup);
+  };
+  return this;
+}
+
+
+function substitute(plain, lookup) {
+  var result = "";
+  for(var i = 0; i < plain.length; i++) {
+    var c = plain[i].toLowerCase();
+    var ec = lookup[c];
+    result = result + (ec || c);
+  }
+  return result;
 }
