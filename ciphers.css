@@ -1,0 +1,9 @@
+textarea {
+  width: 20em;
+  height: 5em;
+}
+
+.ciphertext {
+  font-family: monospace;
+  white-space: pre;
+}
