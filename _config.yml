@@ -1,0 +1,8 @@
+permalink: steps/:title.html
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - bin
+  - .bundle
+  - README.md
