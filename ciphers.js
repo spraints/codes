@@ -14,6 +14,8 @@ $(function() {
     }
     console.log(this);
   });
+
+  $(".js-cryptanalysis-input").change(analyze).keyup(analyze);
 });
 
 const A = 0x41;
@@ -70,4 +72,20 @@ function substitute(plain, lookup) {
     result = result + (ec || c);
   }
   return result;
+}
+
+function analyze() {
+  var counts = {};
+  var text = $(this).val();
+  for(var i = 0; i < text.length; i++) {
+    var c = text[i];
+    counts[c] = (counts[c] || 0) + 1;
+  }
+  console.log(counts);
+  //window.counts = counts;
+  counts = $.map(counts, function(n, c) { return {char: c, count: n}; });
+  console.log(counts);
+  counts.sort(function(a, b) { return b.count - a.count; });
+  console.log(counts);
+  $(".js-cryptanalysis-frequency").text(JSON.stringify(counts));
 }
