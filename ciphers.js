@@ -76,13 +76,17 @@ function substitute(plain, lookup) {
 
 function analyze() {
   var counts = {};
-  var text = $(this).val();
+  var text = $(this).val().toUpperCase();
   for(var i = 0; i < text.length; i++) {
     var c = text[i];
     counts[c] = (counts[c] || 0) + 1;
   }
   counts = $.map(counts, function(n, c) { return {char: c, count: n}; });
   counts.sort(function(a, b) { return b.count - a.count; });
-  // format it.
-  $(".js-cryptanalysis-frequency").text(JSON.stringify(counts));
+  var formatted = counts.map(function(x) { return "" + x.char + ": " + x.count; });
+  $(".js-cryptanalysis-frequency")
+    .empty()
+    .append(
+        $("<pre></pre>")
+          .text(formatted.join("\r\n")));
 }
