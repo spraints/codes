@@ -4,6 +4,7 @@
 $(function() {
   $(document).on("change keyup", ".js-encrypt", encrypt);
   $(document).on("change keyup", ".js-cryptanalysis-input", analyze);
+  $(document).on("change keyup", ".js-cipherconfig", applyconfig);
 });
 
 
@@ -16,6 +17,12 @@ function encrypt() {
     var implObj = new impl(e.data());
     target.text(implObj.encrypt(e.val()));
   }
+}
+
+function applyconfig() {
+  var enc = $(".js-encrypt");
+  enc.data(this.name, $(this).val());
+  enc.each(encrypt);
 }
 
 
