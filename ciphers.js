@@ -1,22 +1,23 @@
-$(function() {
-  $(".js-encrypt").each(function() {
-    var e = $(this);
-    var target = $("#" + e.data("target"));
-    var cipher = e.data("cipher");
-    var impl = Ciphers[cipher];
-    if(target.length > 0 && impl) {
-      var implObj = new impl(e.data());
-      var update = function() {
-        target.text(implObj.encrypt(e.val()));
-      };
-      e.change(update);
-      e.keyup(update);
-    }
-    console.log(this);
-  });
+(function() {
 
-  $(".js-cryptanalysis-input").change(analyze).keyup(analyze);
+
+$(function() {
+  $(document).on("change keyup", ".js-encrypt", encrypt);
+  $(document).on("change keyup", ".js-cryptanalysis-input", analyze);
 });
+
+
+function encrypt() {
+  var e = $(this);
+  var target = $("#" + e.data("target"));
+  var cipher = e.data("cipher");
+  var impl = Ciphers[cipher];
+  if(target.length > 0 && impl) {
+    var implObj = new impl(e.data());
+    target.text(implObj.encrypt(e.val()));
+  }
+}
+
 
 const A = 0x41;
 const Z = 0x5a;
@@ -74,6 +75,7 @@ function substitute(plain, lookup) {
   return result;
 }
 
+
 function analyze() {
   var counts = {};
   var text = $(this).val().toUpperCase();
@@ -93,3 +95,7 @@ function analyze() {
         $("<pre></pre>")
           .text(formatted.join("\r\n")));
 }
+
+
+
+})();
