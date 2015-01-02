@@ -79,7 +79,10 @@ function analyze() {
   var text = $(this).val().toUpperCase();
   for(var i = 0; i < text.length; i++) {
     var c = text[i];
-    counts[c] = (counts[c] || 0) + 1;
+    var cn = c.charCodeAt(0);
+    if(cn >= A && cn <= Z) {
+      counts[c] = (counts[c] || 0) + 1;
+    }
   }
   counts = $.map(counts, function(n, c) { return {char: c, count: n}; });
   counts.sort(function(a, b) { return b.count - a.count; });
