@@ -81,11 +81,8 @@ function analyze() {
     var c = text[i];
     counts[c] = (counts[c] || 0) + 1;
   }
-  console.log(counts);
-  //window.counts = counts;
   counts = $.map(counts, function(n, c) { return {char: c, count: n}; });
-  console.log(counts);
   counts.sort(function(a, b) { return b.count - a.count; });
-  console.log(counts);
+  // format it.
   $(".js-cryptanalysis-frequency").text(JSON.stringify(counts));
 }
