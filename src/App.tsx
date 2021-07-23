@@ -1,10 +1,10 @@
 import { Cipher, ReplacementCipher } from './Model'
 import TODO from './TODO'
-import React, { useReducer } from 'react'
+import CipherTextView from './views/CipherTextView'
+import PlainTextView from './views/PlainTextView'
+import React, { ChangeEvent, useReducer } from 'react'
 
 const CipherView = TODO
-const PlainTextView = TODO
-const CipherTextView = TODO
 const CharacterCountsView = TODO
 
 interface State {
@@ -22,7 +22,9 @@ function initializeModel(): State {
 }
 
 function updateModel(model: State, action: Action) {
-  return action.apply(model)
+  const newModel = action.apply(model)
+  console.log(newModel)
+  return newModel
 }
 
 class AppState {
@@ -32,6 +34,46 @@ class AppState {
   constructor(data: State, dispatchUpdate: React.Dispatch<Action>) {
     this.data = data
     this.dispatchUpdate = dispatchUpdate
+  }
+
+  get plainText(): string {
+    return this.data.plainText
+  }
+
+  get updatePlainText(): (event: ChangeEvent<HTMLTextAreaElement>) => void {
+    return (event) => {
+      this.dispatchUpdate(new UpdatePlainText(event.target.value))
+    }
+  }
+
+  get cipherText(): string {
+    return this.data.cipherText
+  }
+
+  get updateCipherText(): (event: ChangeEvent<HTMLTextAreaElement>) => void {
+    return (event) => {
+      this.dispatchUpdate(new UpdateCipherText(event.target.value))
+    }
+  }
+}
+
+class UpdatePlainText {
+  newPlainText: string
+  constructor(newPlainText: string) {
+    this.newPlainText = newPlainText
+  }
+  apply(data: State): State {
+    return { ...data, plainText: this.newPlainText }
+  }
+}
+
+class UpdateCipherText {
+  newCipherText: string
+  constructor(newCipherText: string) {
+    this.newCipherText = newCipherText
+  }
+  apply(data: State): State {
+    return { ...data, cipherText: this.newCipherText }
   }
 }
 
