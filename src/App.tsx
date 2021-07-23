@@ -1,24 +1,64 @@
-import React from 'react'
-import logo from './logo.svg'
-import './App.css'
-import 'bootstrap/dist/css/bootstrap.css'
+import { Cipher, ReplacementCipher } from './Model'
+import TODO from './TODO'
+import React, { useReducer } from 'react'
+
+const CipherView = TODO
+const PlainTextView = TODO
+const CipherTextView = TODO
+const CharacterCountsView = TODO
+
+interface State {
+  cipher: Cipher
+  plainText: string
+  cipherText: string
+}
+
+interface Action {
+  apply(state: State): State
+}
+
+function initializeModel(): State {
+  return { cipher: new ReplacementCipher([]), plainText: '', cipherText: '' }
+}
+
+function updateModel(model: State, action: Action) {
+  return action.apply(model)
+}
+
+class AppState {
+  data: State
+  dispatchUpdate: React.Dispatch<Action>
+
+  constructor(data: State, dispatchUpdate: React.Dispatch<Action>) {
+    this.data = data
+    this.dispatchUpdate = dispatchUpdate
+  }
+}
 
 function App() {
+  const [state, sendModelMsg] = useReducer(updateModel, null, initializeModel)
+  const appState = new AppState(state, sendModelMsg)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer">
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <div className="row">
+        <div className="col-sm-12">
+          <CipherView state={appState} />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-sm-6">
+          <PlainTextView state={appState} />
+        </div>
+        <div className="col-sm-6">
+          <CipherTextView state={appState} />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-sm-12">
+          <CharacterCountsView state={appState} />
+        </div>
+      </div>
     </div>
   )
 }
