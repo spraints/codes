@@ -1,10 +1,10 @@
 import { Cipher, ReplacementCipher } from './Model'
 import TODO from './TODO'
 import React, { useReducer } from 'react'
+import CharacterCountsView from './views/CharacterCountsView'
 import TextAreaView from './views/TextAreaView'
 
 const CipherView = TODO
-const CharacterCountsView = TODO
 
 interface State {
   cipher: Cipher
@@ -97,7 +97,7 @@ function App() {
       </div>
       <div className="row">
         <div className="col-sm-12">
-          <CharacterCountsView state={appState} />
+          <CharacterCountsView text={appState.cipherText} />
         </div>
       </div>
     </div>
