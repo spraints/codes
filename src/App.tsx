@@ -1,8 +1,7 @@
 import { Cipher, ReplacementCipher } from './Model'
 import TODO from './TODO'
-import CipherTextView from './views/CipherTextView'
-import PlainTextView from './views/PlainTextView'
-import React, { ChangeEvent, useReducer } from 'react'
+import React, { useReducer } from 'react'
+import TextAreaView from './views/TextAreaView'
 
 const CipherView = TODO
 const CharacterCountsView = TODO
@@ -40,9 +39,9 @@ class AppState {
     return this.data.plainText
   }
 
-  get updatePlainText(): (event: ChangeEvent<HTMLTextAreaElement>) => void {
-    return (event) => {
-      this.dispatchUpdate(new UpdatePlainText(event.target.value))
+  get updatePlainText(): (s: string) => void {
+    return (s) => {
+      this.dispatchUpdate(new UpdatePlainText(s))
     }
   }
 
@@ -50,9 +49,9 @@ class AppState {
     return this.data.cipherText
   }
 
-  get updateCipherText(): (event: ChangeEvent<HTMLTextAreaElement>) => void {
-    return (event) => {
-      this.dispatchUpdate(new UpdateCipherText(event.target.value))
+  get updateCipherText(): (s: string) => void {
+    return (s) => {
+      this.dispatchUpdate(new UpdateCipherText(s))
     }
   }
 }
@@ -90,10 +89,10 @@ function App() {
       </div>
       <div className="row">
         <div className="col-sm-6">
-          <PlainTextView state={appState} />
+          <TextAreaView label="Plain text" text={appState.plainText} changeText={appState.updatePlainText} />
         </div>
         <div className="col-sm-6">
-          <CipherTextView state={appState} />
+        <TextAreaView label="Cipher text" text={appState.cipherText} changeText={appState.updateCipherText} disableAutoCorrect={true} />
         </div>
       </div>
       <div className="row">
