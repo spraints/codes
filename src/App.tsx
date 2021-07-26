@@ -1,10 +1,8 @@
 import { Cipher, ReplacementCipher } from './Model'
-import TODO from './TODO'
-import React, { useReducer } from 'react'
 import CharacterCountsView from './views/CharacterCountsView'
+import SubstitutionCipherView from './views/SubstitutionCipherView'
 import TextAreaView from './views/TextAreaView'
-
-const CipherView = TODO
+import React, { useReducer } from 'react'
 
 interface State {
   cipher: Cipher
@@ -84,15 +82,24 @@ function App() {
     <div className="container">
       <div className="row">
         <div className="col-sm-12">
-          <CipherView state={appState} />
+          <SubstitutionCipherView />
         </div>
       </div>
       <div className="row">
         <div className="col-sm-6">
-          <TextAreaView label="Plain text" text={appState.plainText} changeText={appState.updatePlainText} />
+          <TextAreaView
+            label="Plain text"
+            text={appState.plainText}
+            changeText={appState.updatePlainText}
+          />
         </div>
         <div className="col-sm-6">
-        <TextAreaView label="Cipher text" text={appState.cipherText} changeText={appState.updateCipherText} disableAutoCorrect={true} />
+          <TextAreaView
+            label="Cipher text"
+            text={appState.cipherText}
+            changeText={appState.updateCipherText}
+            disableAutoCorrect={true}
+          />
         </div>
       </div>
       <div className="row">

@@ -12,11 +12,16 @@ export default function TextAreaView(props: Props) {
   return (
     <div>
       <b>{label}</b>
-      <textarea autoComplete={ac} autoCorrect={ac} autoCapitalize={ac} spellCheck={sc}
+      <textarea
+        autoComplete={ac}
+        autoCorrect={ac}
+        autoCapitalize={ac}
+        spellCheck={sc}
         className="form-control"
         onChange={(event) => changeText(event.target.value)}
         rows={5}
-        value={text}/>
+        value={text}
+      />
     </div>
   )
 }
