@@ -1,13 +1,12 @@
-import { Cipher, ReplacementCipher } from './Model'
 import CharacterCountsView from './views/CharacterCountsView'
 import SubstitutionCipherView from './views/SubstitutionCipherView'
 import TextAreaView from './views/TextAreaView'
 import React, { useReducer } from 'react'
 
 interface State {
-  cipher: Cipher
   plainText: string
   cipherText: string
+  code: { [key: string]: string }
 }
 
 interface Action {
@@ -15,7 +14,7 @@ interface Action {
 }
 
 function initializeModel(): State {
-  return { cipher: new ReplacementCipher([]), plainText: '', cipherText: '' }
+  return { plainText: '', cipherText: '', code: {} }
 }
 
 function updateModel(model: State, action: Action) {
@@ -52,6 +51,25 @@ class AppState {
       this.dispatchUpdate(new UpdateCipherText(s))
     }
   }
+
+  getCodeLetter(plain: string): string {
+    const code = this.data.code[plain]
+    return code || ''
+  }
+
+  get setCodeLetter(): (plain: string, code: string) => void {
+    return (plain, code) => {
+      this.dispatchUpdate(new SetSubstitution(plain, code))
+    }
+  }
+
+  get encrypt(): () => void {
+    return () => this.dispatchUpdate(new Encrypt())
+  }
+
+  get decrypt(): () => void {
+    return () => this.dispatchUpdate(new Decrypt())
+  }
 }
 
 class UpdatePlainText {
@@ -74,6 +92,51 @@ class UpdateCipherText {
   }
 }
 
+class SetSubstitution {
+  plain: string
+  code: string
+  constructor(plain: string, code: string) {
+    this.plain = plain.toUpperCase()
+    this.code = code.toUpperCase()
+  }
+  apply(data: State): State {
+    const code = { ...data.code }
+    if (this.code == '') {
+      delete code[this.plain]
+    } else {
+      code[this.plain] = this.code
+    }
+    return { ...data, code }
+  }
+}
+
+class Encrypt {
+  apply(data: State): State {
+    const cipherText = substitute(data.plainText, data.code)
+    return { ...data, cipherText }
+  }
+}
+
+class Decrypt {
+  apply(data: State): State {
+    const reverseCode = {} as { [key: string]: string }
+    for (const [plain, code] of Object.entries(data.code)) {
+      reverseCode[code] = plain
+    }
+    console.log(reverseCode)
+    const plainText = substitute(data.cipherText, data.code)
+    return { ...data, plainText }
+  }
+}
+
+function substitute(text: string, mapping: { [key: string]: string }) {
+  const chars = text.split('')
+  const mappedChars = chars.map(
+    (c) => mapping[c.toUpperCase()] || c.toLowerCase()
+  )
+  return mappedChars.join('')
+}
+
 function App() {
   const [state, sendModelMsg] = useReducer(updateModel, null, initializeModel)
   const appState = new AppState(state, sendModelMsg)
@@ -82,18 +145,39 @@ function App() {
     <div className="container">
       <div className="row">
         <div className="col-sm-12">
-          <SubstitutionCipherView />
+          <SubstitutionCipherView
+            cipher={appState}
+            setCodeLetter={appState.setCodeLetter}
+          />
         </div>
       </div>
       <div className="row">
-        <div className="col-sm-6">
+        <div className="col-sm-5">
           <TextAreaView
             label="Plain text"
             text={appState.plainText}
             changeText={appState.updatePlainText}
           />
         </div>
-        <div className="col-sm-6">
+        <div className="col-sm-2">
+          <br />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={appState.decrypt}>
+            &larr; Decrypt
+          </button>
+          <br />
+          <br />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={appState.encrypt}>
+            Encrypt &rarr;
+          </button>
+          <br />
+        </div>
+        <div className="col-sm-5">
           <TextAreaView
             label="Cipher text"
             text={appState.cipherText}
@@ -106,6 +190,9 @@ function App() {
         <div className="col-sm-12">
           <CharacterCountsView text={appState.cipherText} />
         </div>
+      </div>
+      <div className="row">
+        <pre>{JSON.stringify(appState.data, null, ' ')}</pre>
       </div>
     </div>
   )

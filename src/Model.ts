@@ -8,7 +8,7 @@ export interface Replacement {
   cipher: string
 }
 
-export class ReplacementCipher {
+export class SubstitutionCipher {
   replacements: Replacement[]
 
   constructor(replacements: Replacement[]) {
