@@ -9,10 +9,11 @@ interface Cipher {
 interface Props {
   cipher: Cipher
   setCodeLetter: (plain: string, code: string) => void
+  reset: () => void
 }
 
 export default function SubstitutionCipherView(props: Props) {
-  const { cipher, setCodeLetter } = props
+  const { cipher, setCodeLetter, reset } = props
   const seen = {} as { [key: string]: number }
   for (const c of ALPHABET) {
     const x = cipher.getCodeLetter(c)
@@ -42,6 +43,11 @@ export default function SubstitutionCipherView(props: Props) {
               />
             </td>
           ))}
+          <td>
+            <button type="button" className="btn btn-danger" onClick={reset}>
+              reset
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>

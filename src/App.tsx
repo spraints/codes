@@ -34,6 +34,10 @@ class AppState {
     this.dispatchUpdate = dispatchUpdate
   }
 
+  get reset(): () => void {
+    return () => this.dispatchUpdate(new Reset())
+  }
+
   get plainText(): string {
     return this.data.plainText
   }
@@ -115,6 +119,12 @@ class MultiAction {
   }
   apply(data: State): State {
     return this.actions.reduce((data, action) => action.apply(data), data)
+  }
+}
+
+class Reset {
+  apply(data: State): State {
+    return { ...data, mode: 'MANUAL', code: {} }
   }
 }
 
@@ -203,6 +213,7 @@ function App() {
           <SubstitutionCipherView
             cipher={appState}
             setCodeLetter={appState.setCodeLetter}
+            reset={appState.reset}
           />
         </div>
       </div>
