@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -e
+set -o nounset
+
+say() {
+  printf "===> %s ...\n" "$*"
+}
+
+say Building
+if [ "${1:-x}" = "-n" ] && [ -d build ]; then
+  rm -rf build/.git
+else
+  script/build
+fi
+
+version="$(git rev-parse HEAD)"
+if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+  version="${version} (dirty)"
+fi
+
+say Committing to your local gh-pages branch
+cd build
+git init -q
+mkdir -p .git/objects/info
+echo $(pwd)/../.git/objects > .git/objects/info/alternates
+start_commit=$(
+  cd .. && (git rev-parse --verify gh-pages 2>/dev/null || git rev-parse --verify origin/gh-pages 2>/dev/null || true)
+)
+git add .
+newtree=$(git write-tree)
+if [ -n "$start_commit" ]; then
+  start_tree=$(git rev-parse $start_commit^{tree})
+  if [ "$start_tree" = "$newtree" ]; then
+    echo No changes.
+    exit 0
+  fi
+fi
+set -- git commit-tree -m "Publish $version"
+if [ -n "$start_commit" ]; then
+  set -- "$@" -p "$start_commit"
+fi
+set -- "$@" "$newtree"
+commit=$("$@")
+git push $(pwd)/../.git "$commit:refs/heads/gh-pages"
