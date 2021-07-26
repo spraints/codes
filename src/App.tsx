@@ -1,9 +1,11 @@
 import CharacterCountsView from './views/CharacterCountsView'
 import SubstitutionCipherView from './views/SubstitutionCipherView'
 import TextAreaView from './views/TextAreaView'
+import classNames from 'classnames'
 import React, { useReducer } from 'react'
 
 interface State {
+  mode: 'MANUAL' | 'AUTODECRYPT' | 'AUTOENCRYPT'
   plainText: string
   cipherText: string
   code: { [key: string]: string }
@@ -14,7 +16,7 @@ interface Action {
 }
 
 function initializeModel(): State {
-  return { plainText: '', cipherText: '', code: {} }
+  return { mode: 'MANUAL', plainText: '', cipherText: '', code: {} }
 }
 
 function updateModel(model: State, action: Action) {
@@ -38,7 +40,7 @@ class AppState {
 
   get updatePlainText(): (s: string) => void {
     return (s) => {
-      this.dispatchUpdate(new UpdatePlainText(s))
+      this.dispatchUpdate(this.maybeAutoEncrypt(new UpdatePlainText(s)))
     }
   }
 
@@ -48,7 +50,7 @@ class AppState {
 
   get updateCipherText(): (s: string) => void {
     return (s) => {
-      this.dispatchUpdate(new UpdateCipherText(s))
+      this.dispatchUpdate(this.maybeAutoDecrypt(new UpdateCipherText(s)))
     }
   }
 
@@ -59,7 +61,7 @@ class AppState {
 
   get setCodeLetter(): (plain: string, code: string) => void {
     return (plain, code) => {
-      this.dispatchUpdate(new SetSubstitution(plain, code))
+      this.dispatchUpdate(this.maybeAuto(new SetSubstitution(plain, code)))
     }
   }
 
@@ -69,6 +71,50 @@ class AppState {
 
   get decrypt(): () => void {
     return () => this.dispatchUpdate(new Decrypt())
+  }
+
+  get manual(): boolean {
+    return this.data.mode === 'MANUAL'
+  }
+
+  get autoEncrypt(): boolean {
+    return this.data.mode === 'AUTOENCRYPT'
+  }
+
+  get autoDecrypt(): boolean {
+    return this.data.mode === 'AUTODECRYPT'
+  }
+
+  setMode(mode: 'MANUAL' | 'AUTOENCRYPT' | 'AUTODECRYPT'): () => void {
+    return () => this.dispatchUpdate(new SetMode(mode))
+  }
+
+  private maybeAuto(action: Action): Action {
+    return this.maybeAutoEncrypt(this.maybeAutoDecrypt(action))
+  }
+
+  private maybeAutoDecrypt(action: Action): Action {
+    if (this.autoDecrypt) {
+      return new MultiAction(action, new Decrypt())
+    }
+    return action
+  }
+
+  private maybeAutoEncrypt(action: Action): Action {
+    if (this.autoEncrypt) {
+      return new MultiAction(action, new Encrypt())
+    }
+    return action
+  }
+}
+
+class MultiAction {
+  actions: Action[]
+  constructor(...actions: Action[]) {
+    this.actions = actions
+  }
+  apply(data: State): State {
+    return this.actions.reduce((data, action) => action.apply(data), data)
   }
 }
 
@@ -101,7 +147,7 @@ class SetSubstitution {
   }
   apply(data: State): State {
     const code = { ...data.code }
-    if (this.code == '') {
+    if (this.code === '') {
       delete code[this.plain]
     } else {
       code[this.plain] = this.code
@@ -125,6 +171,16 @@ class Decrypt {
     }
     const plainText = substitute(data.cipherText, reverseCode)
     return { ...data, plainText }
+  }
+}
+
+class SetMode {
+  mode: 'MANUAL' | 'AUTOENCRYPT' | 'AUTODECRYPT'
+  constructor(mode: 'MANUAL' | 'AUTOENCRYPT' | 'AUTODECRYPT') {
+    this.mode = mode
+  }
+  apply(data: State): State {
+    return { ...data, mode: this.mode }
   }
 }
 
@@ -163,6 +219,7 @@ function App() {
           <button
             type="button"
             className="btn btn-primary"
+            disabled={!appState.manual}
             onClick={appState.decrypt}>
             &larr; Decrypt
           </button>
@@ -171,10 +228,38 @@ function App() {
           <button
             type="button"
             className="btn btn-primary"
+            disabled={!appState.manual}
             onClick={appState.encrypt}>
             Encrypt &rarr;
           </button>
           <br />
+          <br />
+          <div className="btn-group">
+            <button
+              type="button"
+              className={classNames('btn', 'btn-primary', {
+                active: appState.manual,
+              })}
+              onClick={appState.setMode('MANUAL')}>
+              manual
+            </button>
+            <button
+              type="button"
+              className={classNames('btn', 'btn-primary', {
+                active: appState.autoEncrypt,
+              })}
+              onClick={appState.setMode('AUTOENCRYPT')}>
+              encrypt
+            </button>
+            <button
+              type="button"
+              className={classNames('btn', 'btn-primary', {
+                active: appState.autoDecrypt,
+              })}
+              onClick={appState.setMode('AUTODECRYPT')}>
+              decrypt
+            </button>
+          </div>
         </div>
         <div className="col-sm-5">
           <TextAreaView

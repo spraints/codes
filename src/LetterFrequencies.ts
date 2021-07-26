@@ -26,5 +26,5 @@ const LetterFrequencies = [
   { letter: 'P', percent: 3.1671 },
   { letter: 'Q', percent: 0.1962 },
 ]
-
+LetterFrequencies.sort((a, b) => b.percent - a.percent)
 export default LetterFrequencies

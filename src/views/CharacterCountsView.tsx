@@ -29,18 +29,18 @@ export default function CharacterCountsView(props: Props) {
       <table>
         <thead>
           <tr>
-            <th colSpan={3}>Letters in message</th>
             <th colSpan={2}>Common letters</th>
+            <th colSpan={3}>Letters in message</th>
           </tr>
         </thead>
         <tbody>
           {frequencies.map((x, i) => (
             <tr key={i}>
+              <td>{LetterFrequencies[i].letter}</td>
+              <td>{LetterFrequencies[i].percent.toFixed(1)}%</td>
               <td>{x.letter}</td>
               <td>{x.count}</td>
               <td>{x.percent.toFixed(1)}%</td>
-              <td>{LetterFrequencies[i].letter}</td>
-              <td>{LetterFrequencies[i].percent.toFixed(1)}%</td>
             </tr>
           ))}
         </tbody>
