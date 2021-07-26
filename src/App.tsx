@@ -123,8 +123,7 @@ class Decrypt {
     for (const [plain, code] of Object.entries(data.code)) {
       reverseCode[code] = plain
     }
-    console.log(reverseCode)
-    const plainText = substitute(data.cipherText, data.code)
+    const plainText = substitute(data.cipherText, reverseCode)
     return { ...data, plainText }
   }
 }

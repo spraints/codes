@@ -36,7 +36,7 @@ export default function SubstitutionCipherView(props: Props) {
           {ALPHABET.map((c) => [c, cipher.getCodeLetter(c)]).map(([c, x]) => (
             <td key={c}>
               <CodeLetter
-                conflict={seen[x] ? seen[x] > 1 : false}
+                conflict={x.length > 0 && seen[x] ? seen[x] > 1 : false}
                 code={x}
                 onChange={(newX) => setCodeLetter(c, newX)}
               />
