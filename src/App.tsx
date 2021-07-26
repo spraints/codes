@@ -1,11 +1,15 @@
 import CharacterCountsView from './views/CharacterCountsView'
-import SubstitutionCipherView from './views/SubstitutionCipherView'
+import {
+  SubstitutionCipherView,
+  SubstitutionPlainView,
+} from './views/SubstitutionCipherView'
 import TextAreaView from './views/TextAreaView'
 import classNames from 'classnames'
 import React, { useReducer } from 'react'
 
 interface State {
   mode: 'MANUAL' | 'AUTODECRYPT' | 'AUTOENCRYPT'
+  cipherMode: 'PLAIN' | 'CRYPTED'
   plainText: string
   cipherText: string
   code: { [key: string]: string }
@@ -16,7 +20,13 @@ interface Action {
 }
 
 function initializeModel(): State {
-  return { mode: 'MANUAL', plainText: '', cipherText: '', code: {} }
+  return {
+    mode: 'MANUAL',
+    cipherMode: 'CRYPTED',
+    plainText: '',
+    cipherText: '',
+    code: {},
+  }
 }
 
 function updateModel(model: State, action: Action) {
@@ -63,6 +73,15 @@ class AppState {
     return code || ''
   }
 
+  getPlainLetter(code: string): string {
+    for (const [c, x] of Object.entries(this.data.code)) {
+      if (x === code) {
+        return c
+      }
+    }
+    return ''
+  }
+
   get setCodeLetter(): (plain: string, code: string) => void {
     return (plain, code) => {
       this.dispatchUpdate(this.maybeAuto(new SetSubstitution(plain, code)))
@@ -75,6 +94,10 @@ class AppState {
 
   get decrypt(): () => void {
     return () => this.dispatchUpdate(new Decrypt())
+  }
+
+  get switchCipherMode(): () => void {
+    return () => this.dispatchUpdate(new SwitchCipherMode())
   }
 
   get manual(): boolean {
@@ -159,6 +182,13 @@ class SetSubstitution {
     const code = { ...data.code }
     if (this.code === '') {
       delete code[this.plain]
+    } else if (this.plain === '') {
+      for (const [c, x] of Object.entries(code)) {
+        if (x === this.code) {
+          delete code[c]
+          break
+        }
+      }
     } else {
       code[this.plain] = this.code
     }
@@ -194,6 +224,13 @@ class SetMode {
   }
 }
 
+class SwitchCipherMode {
+  apply(data: State): State {
+    const cipherMode = data.cipherMode === 'CRYPTED' ? 'PLAIN' : 'CRYPTED'
+    return { ...data, cipherMode }
+  }
+}
+
 function substitute(text: string, mapping: { [key: string]: string }) {
   const chars = text.split('')
   const mappedChars = chars.map(
@@ -210,11 +247,29 @@ function App() {
     <div className="container">
       <div className="row">
         <div className="col-sm-12">
-          <SubstitutionCipherView
-            cipher={appState}
-            setCodeLetter={appState.setCodeLetter}
-            reset={appState.reset}
-          />
+          {appState.data.cipherMode === 'CRYPTED' ? (
+            <SubstitutionCipherView
+              cipher={appState}
+              setCodeLetter={appState.setCodeLetter}
+            />
+          ) : (
+            <SubstitutionPlainView
+              cipher={appState}
+              setCodeLetter={appState.setCodeLetter}
+            />
+          )}
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={appState.switchCipherMode}>
+            switch entry mode
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={appState.reset}>
+            reset code
+          </button>
         </div>
       </div>
       <div className="row">

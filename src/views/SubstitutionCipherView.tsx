@@ -4,16 +4,16 @@ const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
 interface Cipher {
   getCodeLetter(plain: string): string
+  getPlainLetter(code: string): string
 }
 
 interface Props {
   cipher: Cipher
   setCodeLetter: (plain: string, code: string) => void
-  reset: () => void
 }
 
-export default function SubstitutionCipherView(props: Props) {
-  const { cipher, setCodeLetter, reset } = props
+export function SubstitutionCipherView(props: Props) {
+  const { cipher, setCodeLetter } = props
   const seen = {} as { [key: string]: number }
   for (const c of ALPHABET) {
     const x = cipher.getCodeLetter(c)
@@ -43,17 +43,48 @@ export default function SubstitutionCipherView(props: Props) {
               />
             </td>
           ))}
-          <td>
-            <button type="button" className="btn btn-danger" onClick={reset}>
-              reset
-            </button>
-          </td>
         </tr>
       </tbody>
     </table>
   )
 }
 
+export function SubstitutionPlainView(props: Props) {
+  const { cipher, setCodeLetter } = props
+  const seen = {} as { [key: string]: number }
+  for (const c of ALPHABET) {
+    const x = cipher.getPlainLetter(c)
+    if (seen[x]) {
+      seen[x]++
+    } else {
+      seen[x] = 1
+    }
+  }
+  return (
+    <table>
+      <tbody>
+        <tr>
+          <th>plain</th>
+          {ALPHABET.map((x) => [cipher.getPlainLetter(x), x]).map(([c, x]) => (
+            <td key={x}>
+              <CodeLetter
+                conflict={c.length > 0 && seen[c] ? seen[c] > 1 : false}
+                code={c}
+                onChange={(newC) => setCodeLetter(newC, x)}
+              />
+            </td>
+          ))}
+        </tr>
+        <tr>
+          <th>code</th>
+          {ALPHABET.map((c) => (
+            <td key={c}>{c}</td>
+          ))}
+        </tr>
+      </tbody>
+    </table>
+  )
+}
 function CodeLetter(props: {
   conflict: boolean
   code: string
