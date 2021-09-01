@@ -2,6 +2,15 @@
 
 This [site](http://spraints.github.io/codes) generates codes that I'm using to play around with paper and pencil crypto, with my kids.
 
+Install dependencies:
+- `yarn install`
+
+Run locally:
+- `yarn start`
+
+Publish to GitHub Pages:
+- `script/publish`
+
 
 More resources:
 
